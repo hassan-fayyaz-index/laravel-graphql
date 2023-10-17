@@ -1,15 +1,3 @@
-type Query {
-    ageGroup(
-        id: ID @eq @rules(apply: ["prohibits:name", "required_without:name"])
-        name: String @eq @rules(apply: ["prohibits:id", "required_without:id"])
-    ): AgeGroup @find
-
-    ageGroups(
-        name: String @where(operator: "like")
-        orderBy:[OrderByClause] @orderBy
-    ): [AgeGroup!]! @paginate(defaultCount: 10)
-}
-
 type AgeGroup {
     id: ID!
     name: String!
@@ -22,7 +10,18 @@ type AgeGroup {
     deleted_at: DateTime!
 }
 
-type Mutation{
+extend type Query {
+    ageGroup(
+        id: ID @eq @rules(apply: ["required"])
+    ): AgeGroup @find
+
+    ageGroups(
+        name: String @where(operator: "like")
+        orderBy:[OrderByClause] @orderBy
+    ): [AgeGroup!]! @paginate(defaultCount: 10)
+}
+
+extend type Mutation{
     createAgeGroup(
         name:String! @rules(apply: ["required","max:255","min:3"])
         description:String! @rules(apply: ["required"])
