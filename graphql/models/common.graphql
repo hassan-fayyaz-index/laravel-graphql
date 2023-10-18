@@ -1,0 +1,67 @@
+type AgeGroup {
+    id: ID!
+    name: String!
+    description: String!
+    created_at: DateTime
+    updated_at: DateTime
+    deleted_at: DateTime
+    created_by: User @belongsTo
+    updated_by: User @belongsTo
+    deleted_by: User @belongsTo
+}
+
+type JobFunction {
+    id: ID!
+    name: String!
+    description: String!
+    created_at: DateTime
+    updated_at: DateTime
+    deleted_at: DateTime
+    created_by: User @belongsTo
+    updated_by: User @belongsTo
+    deleted_by: User @belongsTo
+}
+
+input CommonFieldsInput {
+    name: String!
+    description: String!
+}
+
+enum TableNames {
+    AgeGroups @enum(value: "age_groups")
+    JobFunctions @enum(value: "job_functions")
+}
+
+union CommonResult = AgeGroup | JobFunction
+
+extend type Query {
+    record(
+        table_name: TableNames! @rules(apply: ["required"])
+        id: ID @eq @rules(apply: ["required"])
+    ): CommonResult @field(resolver: "App\\GraphQL\\Mutations\\Common\\Find") @cache
+
+    records(
+        table_name: TableNames! @rules(apply: ["required"])
+        name: String @where(operator: "like")
+        orderBy: [OrderByClause] @orderBy
+    ): [CommonResult!]! @field(resolver: "App\\GraphQL\\Mutations\\Common\\Paginate") @cache
+}
+
+
+extend type Mutation{
+    createRecord(
+        table_name: TableNames!
+        data: CommonFieldsInput!
+    ): CommonResult @field(resolver: "App\\GraphQL\\Mutations\\Common\\Create")
+
+    updateRecord(
+        id: ID!,
+        table_name: TableNames!
+        data: CommonFieldsInput!
+    ): CommonResult @field(resolver: "App\\GraphQL\\Mutations\\Common\\Update")
+
+    deleteRecord(
+        id: ID!,
+        table_name: TableNames!
+    ): CommonResult @field(resolver: "App\\GraphQL\\Mutations\\Common\\Delete")
+}

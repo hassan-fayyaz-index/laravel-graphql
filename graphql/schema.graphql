@@ -9,5 +9,4 @@ input OrderByClause {
 type Mutation
 type Query
 
-#import user.graphql
-#import age_groups.graphql
+#import models/*.graphql
